@@ -1,0 +1,96 @@
+/* ── Base ─────────────────────────────────────────────────── */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  border-radius: var(--radius-pill);
+  font-family: var(--font-mono);
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+/* ── Sizes ────────────────────────────────────────────────── */
+.sm { padding: 4px 10px;  font-size: 10px; }
+.md { padding: 5px 12px;  font-size: 11px; }
+.lg { padding: 7px 14px;  font-size: 12px; }
+
+/* ── Dot ──────────────────────────────────────────────────── */
+.dot::before {
+  content: '';
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: currentColor;
+  flex-shrink: 0;
+}
+
+/* ── Variants ─────────────────────────────────────────────── */
+.default {
+  background: rgba(255, 255, 255, 0.10);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: var(--stone);
+}
+
+.ember {
+  background: rgba(232, 76, 30, 0.28);
+  border: 1px solid rgba(232, 76, 30, 0.55);
+  color: #ff8a65;
+}
+
+.success {
+  background: rgba(74, 222, 128, 0.18);
+  border: 1px solid rgba(74, 222, 128, 0.38);
+  color: #6ddf96;
+}
+
+.warning {
+  background: rgba(251, 191, 36, 0.18);
+  border: 1px solid rgba(251, 191, 36, 0.38);
+  color: #fcd34d;
+}
+
+.error {
+  background: rgba(248, 113, 113, 0.18);
+  border: 1px solid rgba(248, 113, 113, 0.38);
+  color: #fca5a5;
+}
+
+.glass {
+  background: rgba(255, 255, 255, 0.14);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  color: var(--off-white);
+}
+
+/* ── Tipos de empresa — más sólidos y legibles ─────────────── */
+
+/* Verde sólido — se lee bien sobre cualquier fondo */
+.cliente {
+  background: rgba(72, 187, 100, 0.28);
+  border: 1px solid rgba(72, 187, 100, 0.55);
+  color: #7edda0;
+}
+
+/* Azul — evita confundirse con el fondo naranja/cálido */
+.prospecto {
+  background: rgba(79, 142, 255, 0.25);
+  border: 1px solid rgba(79, 142, 255, 0.50);
+  color: #82b4ff;
+}
+
+/* Plata/stone — neutro legible */
+.proveedor {
+  background: rgba(200, 196, 188, 0.20);
+  border: 1px solid rgba(200, 196, 188, 0.42);
+  color: #d4d0ca;
+}
+
+.otro {
+  background: rgba(200, 196, 188, 0.20);
+  border: 1px solid rgba(200, 196, 188, 0.42);
+  color: #d4d0ca;
+}

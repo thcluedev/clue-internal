@@ -1,0 +1,92 @@
+/* ── Wrapper ──────────────────────────────────────────────── */
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+}
+
+/* ── Label ────────────────────────────────────────────────── */
+.label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 400;
+  color: var(--stone);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding-left: 2px;
+}
+
+/* ── Input shell (for icon support) ──────────────────────── */
+.shell {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.iconLeft {
+  position: absolute;
+  left: 14px;
+  color: var(--stone);
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+  z-index: 1;
+}
+
+/* ── Field ────────────────────────────────────────────────── */
+.field {
+  width: 100%;
+  padding: 10px 16px;
+  border-radius: var(--radius-pill);
+  font-family: var(--font-sans);
+  font-size: 13px;
+  color: var(--off-white);
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(12px) saturate(1.4);
+  -webkit-backdrop-filter: blur(12px) saturate(1.4);
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  line-height: 1;
+}
+
+.field::placeholder {
+  color: var(--muted);
+}
+
+.field:focus {
+  border-color: var(--ember-border);
+  box-shadow: 0 0 0 3px rgba(232, 76, 30, 0.08);
+}
+
+/* ── With left icon ───────────────────────────────────────── */
+.hasIcon { padding-left: 40px; }
+
+/* ── Sizes ────────────────────────────────────────────────── */
+.sm .field { padding: 7px 14px; font-size: 12px; }
+.lg .field { padding: 13px 20px; font-size: 14px; }
+
+/* ── Error state ──────────────────────────────────────────── */
+.fieldError {
+  border-color: rgba(248, 113, 113, 0.5) !important;
+  box-shadow: 0 0 0 3px rgba(248, 113, 113, 0.08) !important;
+}
+
+/* ── Hint / error message ─────────────────────────────────── */
+.hint {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--stone);
+  padding-left: 4px;
+  letter-spacing: 0.04em;
+}
+
+.error {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: #f87171;
+  padding-left: 4px;
+  letter-spacing: 0.04em;
+}

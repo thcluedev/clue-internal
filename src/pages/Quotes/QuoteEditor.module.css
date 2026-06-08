@@ -1,0 +1,198 @@
+/* ── Editor page ──────────────────────────────────────────── */
+.page {
+  height: 100%;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.15) transparent;
+}
+
+/* Back bar */
+.backBar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.backTitle {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--stone);
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+}
+
+/* ── Two-column grid ──────────────────────────────────────── */
+.editorGrid {
+  display: grid;
+  grid-template-columns: 1fr 360px;
+  gap: 10px;
+  align-items: start;
+  flex: 1;
+}
+
+.leftCol {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.rightCol {
+  position: sticky;
+  top: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* ── Section card internals ───────────────────────────────── */
+.section {
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.sectionTitle {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--stone);
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.formGrid2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+/* ── Items builder ────────────────────────────────────────── */
+.itemsHeader {
+  display: grid;
+  grid-template-columns: 1fr 64px 110px 100px 32px;
+  gap: 8px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.itemRow {
+  display: grid;
+  grid-template-columns: 1fr 64px 110px 100px 32px;
+  gap: 8px;
+  align-items: center;
+}
+
+.subtotal {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--off-white);
+  text-align: right;
+  padding-right: 4px;
+}
+
+.addItemRow {
+  padding-top: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  margin-top: 4px;
+}
+
+/* ── Summary panel ────────────────────────────────────────── */
+.summaryNum {
+  font-family: 'Bebas Neue', var(--font-mono);
+  font-size: 36px;
+  color: var(--ember);
+  letter-spacing: 0.04em;
+  line-height: 1;
+}
+
+.summaryDivider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.summaryItems {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.summaryItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.summaryItemDesc {
+  font-family: var(--font-sans);
+  font-size: 12px;
+  color: var(--stone);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+}
+
+.summaryItemAmt {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--stone);
+  flex-shrink: 0;
+}
+
+.summaryTotal {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.10);
+}
+
+.summaryTotalLabel {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--stone);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.summaryTotalAmount {
+  font-family: var(--font-mono);
+  font-size: 18px;
+  color: var(--off-white);
+  font-weight: 400;
+}
+
+.summaryValidity {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--stone);
+  text-align: right;
+  margin-top: 4px;
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* ── Responsive ───────────────────────────────────────────── */
+@media (max-width: 900px) {
+  .editorGrid {
+    grid-template-columns: 1fr;
+  }
+  .rightCol {
+    position: static;
+  }
+  .itemsHeader,
+  .itemRow {
+    grid-template-columns: 1fr 56px 100px 90px 32px;
+  }
+}

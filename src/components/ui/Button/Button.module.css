@@ -1,0 +1,122 @@
+/* ── Base ─────────────────────────────────────────────────── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-family: var(--font-sans);
+  font-weight: 500;
+  line-height: 1;
+  white-space: nowrap;
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  user-select: none;
+  position: relative;
+  letter-spacing: -0.01em;
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* ── Sizes ────────────────────────────────────────────────── */
+.sm { padding: 7px 14px;  font-size: 11px; }
+.md { padding: 10px 20px; font-size: 13px; }
+.lg { padding: 13px 28px; font-size: 15px; }
+
+.fullWidth { width: 100%; }
+
+/* ── Primary (ember) ──────────────────────────────────────── */
+.primary {
+  background: var(--ember);
+  color: #fff;
+  border: 1px solid var(--ember-border);
+  box-shadow: 0 4px 16px rgba(232, 76, 30, 0.22);
+}
+.primary:hover {
+  filter: brightness(1.1);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 22px rgba(232, 76, 30, 0.34);
+}
+.primary:active { filter: brightness(0.95); transform: translateY(0); }
+
+/* ── Ghost (glass) ────────────────────────────────────────── */
+.ghost {
+  background: rgba(255, 255, 255, 0.07);
+  color: var(--stone);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(12px) saturate(1.4);
+  -webkit-backdrop-filter: blur(12px) saturate(1.4);
+}
+.ghost:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: var(--off-white);
+  border-color: rgba(255, 255, 255, 0.18);
+  transform: translateY(-1px);
+}
+.ghost:active { background: rgba(255, 255, 255, 0.05); transform: translateY(0); }
+
+/* ── Danger ───────────────────────────────────────────────── */
+.danger {
+  background: rgba(248, 113, 113, 0.1);
+  color: #f87171;
+  border: 1px solid rgba(248, 113, 113, 0.22);
+}
+.danger:hover {
+  background: rgba(248, 113, 113, 0.18);
+  border-color: rgba(248, 113, 113, 0.35);
+  transform: translateY(-1px);
+}
+.danger:active { background: rgba(248, 113, 113, 0.08); transform: translateY(0); }
+
+/* ── Icon (round) ─────────────────────────────────────────── */
+.icon {
+  border-radius: 50%;
+  padding: 0;
+  background: rgba(255, 255, 255, 0.07);
+  color: var(--stone);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(12px) saturate(1.4);
+  -webkit-backdrop-filter: blur(12px) saturate(1.4);
+  flex-shrink: 0;
+}
+.icon:hover {
+  background: rgba(255, 255, 255, 0.13);
+  color: var(--off-white);
+  border-color: rgba(255, 255, 255, 0.18);
+  transform: translateY(-1px);
+}
+.icon:active { background: rgba(255, 255, 255, 0.04); transform: scale(0.94); }
+
+.icon.sm { width: 28px; height: 28px; font-size: 13px; }
+.icon.md { width: 36px; height: 36px; font-size: 16px; }
+.icon.lg { width: 44px; height: 44px; font-size: 20px; }
+
+/* ── Disabled ─────────────────────────────────────────────── */
+.btn:disabled {
+  opacity: 0.38;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* ── Loading ──────────────────────────────────────────────── */
+.loading {
+  pointer-events: none;
+  color: transparent !important;
+}
+.loading::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-top-color: rgba(255, 255, 255, 0.8);
+  border-radius: 50%;
+  animation: btn-spin 0.65s linear infinite;
+}
+
+@keyframes btn-spin {
+  to { transform: rotate(360deg); }
+}
