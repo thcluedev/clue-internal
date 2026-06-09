@@ -5,7 +5,7 @@ const NAV_ITEMS = [
   { path: '/contactos',    label: 'Contactos',    icon: '👤', badge: null, id: 'nav-contactos',    end: true  },
   { path: '/crm',          label: 'CRM',          icon: '📊', badge: 0,    id: 'nav-crm',          end: true  },
   { path: '/cotizaciones', label: 'Cotizaciones', icon: '📄', badge: null, id: 'nav-cotizaciones', end: false },
-  { path: '/proyectos',    label: 'Proyectos',    icon: '🗂️', badge: null, id: 'nav-proyectos',    end: true  },
+  { path: '/proyectos',    label: 'Proyectos',    icon: '🗂️', badge: null, id: 'nav-proyectos',    end: false },
 ]
 
 export function Sidebar() {

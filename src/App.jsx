@@ -7,6 +7,7 @@ import CRM from './pages/CRM/CRM'
 import Quotes from './pages/Quotes/Quotes'
 import QuoteEditor from './pages/Quotes/QuoteEditor'
 import Projects from './pages/Projects/Projects'
+import ProjectBoard from './pages/Projects/ProjectBoard'
 import './styles/globals.css'
 import './styles/tokens.css'
 
@@ -54,6 +55,11 @@ export default function App() {
         <Route path="/proyectos" element={
           <PrivateRoute>
             <Layout><Projects /></Layout>
+          </PrivateRoute>
+        } />
+        <Route path="/proyectos/:id" element={
+          <PrivateRoute>
+            <Layout><ProjectBoard /></Layout>
           </PrivateRoute>
         } />
         <Route path="*" element={<Navigate to="/" replace />} />
