@@ -8,9 +8,10 @@ import styles from './Select.module.css'
  * label   : string
  */
 export function Select({ id, label, value, onChange, options, style, className }) {
-  const [open, setOpen] = useState(false)
-  const [pos, setPos]   = useState({ top: 0, left: 0, width: 0 })
-  const triggerRef      = useRef(null)
+  const [open, setOpen]  = useState(false)
+  const [pos, setPos]    = useState({ top: 0, left: 0, width: 0 })
+  const triggerRef       = useRef(null)
+  const dropdownRef      = useRef(null)
 
   const selected = options.find(o => o.value === value)
 
@@ -22,10 +23,12 @@ export function Select({ id, label, value, onChange, options, style, className }
     setOpen(o => !o)
   }
 
-  // Close on outside click
+  // Close on outside click — must exclude the portal dropdown itself
   useEffect(() => {
     const handler = (e) => {
-      if (triggerRef.current && !triggerRef.current.contains(e.target)) setOpen(false)
+      const inTrigger  = triggerRef.current?.contains(e.target)
+      const inDropdown = dropdownRef.current?.contains(e.target)
+      if (!inTrigger && !inDropdown) setOpen(false)
     }
     if (open) document.addEventListener('mousedown', handler)
     return () => document.removeEventListener('mousedown', handler)
@@ -40,17 +43,17 @@ export function Select({ id, label, value, onChange, options, style, className }
 
   const dropdown = open && createPortal(
     <div
+      ref={dropdownRef}
       className={styles.dropdown}
       style={{ position: 'fixed', top: pos.top, left: pos.left, width: pos.width, zIndex: 9999 }}
     >
-      {options.map((opt, i) => {
+      {options.map((opt) => {
         const isSelected = opt.value === value
         return (
           <div
-            key={opt.value}
+            key={String(opt.value)}
             id={`${id ?? 'select'}-option-${opt.value}`}
             className={`${styles.option} ${isSelected ? styles.optionSelected : ''}`}
-            onMouseDown={e => e.preventDefault()}
             onClick={() => { onChange(opt.value); setOpen(false) }}
           >
             {opt.label}

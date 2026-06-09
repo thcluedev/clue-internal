@@ -8,6 +8,7 @@ import Quotes from './pages/Quotes/Quotes'
 import QuoteEditor from './pages/Quotes/QuoteEditor'
 import Projects from './pages/Projects/Projects'
 import ProjectBoard from './pages/Projects/ProjectBoard'
+import Dashboard from './pages/Dashboard/Dashboard'
 import './styles/globals.css'
 import './styles/tokens.css'
 
@@ -24,7 +25,7 @@ export default function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/" element={
           <PrivateRoute>
-            <Layout><CRM /></Layout>
+            <Layout><Dashboard /></Layout>
           </PrivateRoute>
         } />
         <Route path="/contactos" element={

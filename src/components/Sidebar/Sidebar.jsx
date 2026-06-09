@@ -1,15 +1,27 @@
+import { useState, useEffect } from 'react'
 import { NavLink } from 'react-router-dom'
 import { useAuth } from '../../hooks/useAuth'
+import { supabase } from '../../lib/supabase'
 
 const NAV_ITEMS = [
-  { path: '/contactos',    label: 'Contactos',    icon: '👤', badge: null, id: 'nav-contactos',    end: true  },
-  { path: '/crm',          label: 'CRM',          icon: '📊', badge: 0,    id: 'nav-crm',          end: true  },
-  { path: '/cotizaciones', label: 'Cotizaciones', icon: '📄', badge: null, id: 'nav-cotizaciones', end: false },
-  { path: '/proyectos',    label: 'Proyectos',    icon: '🗂️', badge: null, id: 'nav-proyectos',    end: false },
+  { path: '/',             label: 'Inicio',       icon: '⌂',  id: 'nav-inicio',        end: true  },
+  { path: '/contactos',    label: 'Contactos',    icon: '👤', id: 'nav-contactos',     end: true  },
+  { path: '/crm',          label: 'CRM',          icon: '📊', id: 'nav-crm',           end: true  },
+  { path: '/cotizaciones', label: 'Cotizaciones', icon: '📄', id: 'nav-cotizaciones',  end: false },
+  { path: '/proyectos',    label: 'Proyectos',    icon: '🗂️', id: 'nav-proyectos',     end: false },
 ]
 
 export function Sidebar() {
   const { user, signOut } = useAuth()
+  const [crmCount, setCrmCount] = useState(null)
+
+  useEffect(() => {
+    supabase
+      .from('opportunities')
+      .select('id', { count: 'exact' })
+      .not('stage', 'in', '(cerrado,perdido)')
+      .then(({ count }) => { if (count !== null) setCrmCount(count) })
+  }, [])
 
   const initials = user?.email
     ? user.email.slice(0, 2).toUpperCase()
@@ -75,20 +87,20 @@ export function Sidebar() {
           >
             <span style={{ fontSize: '14px' }}>{item.icon}</span>
             <span id={`${item.id}-label`} style={{ flex: 1 }}>{item.label}</span>
-            {item.badge !== null && (
+            {item.id === 'nav-crm' && crmCount !== null && (
               <span
-                id={`${item.id}-badge`}
+                id="nav-crm-badge"
                 style={{
-                  background: 'rgba(255,255,255,0.08)',
-                  border: '1px solid rgba(255,255,255,0.14)',
+                  background: 'rgba(232,76,30,0.14)',
+                  border: '1px solid rgba(232,76,30,0.30)',
                   borderRadius: '100px',
                   padding: '1px 7px',
                   fontSize: '10px',
                   fontFamily: 'var(--font-mono)',
-                  color: 'var(--stone)',
+                  color: 'var(--ember)',
                 }}
               >
-                {item.badge}
+                {crmCount}
               </span>
             )}
           </NavLink>
