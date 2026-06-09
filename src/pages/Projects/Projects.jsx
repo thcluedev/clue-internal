@@ -267,7 +267,7 @@ export default function Projects() {
         <div id="projects-grid" className={styles.grid}>
           {filtered.map(project => {
             const total   = project.tasks?.length || 0
-            const done    = project.tasks?.filter(t => t.column === 'hecho').length || 0
+            const done    = project.tasks?.filter(t => t.stage === 'hecho').length || 0
             const pct     = total > 0 ? (done / total) * 100 : 0
             const dateStr = new Date(project.created_at).toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: '2-digit' })
 

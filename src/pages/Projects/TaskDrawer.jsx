@@ -36,7 +36,7 @@ function SectionTitle({ children }) {
 
 /* ── TaskDrawer ────────────────────────────────────────────── */
 export function TaskDrawer({ isOpen, onClose, task, onUpdate, onDelete }) {
-  const [form, setForm]             = useState({ title: '', column: 'backlog', priority: 'media', description: '' })
+  const [form, setForm]             = useState({ title: '', stage: 'backlog', priority: 'media', description: '' })
   const [editingTitle, setEditingTitle] = useState(false)
   const [saving, setSaving]         = useState(false)
 
@@ -44,7 +44,7 @@ export function TaskDrawer({ isOpen, onClose, task, onUpdate, onDelete }) {
     if (!isOpen || !task) return
     setForm({
       title:       task.title       || '',
-      column:      task.column      || 'backlog',
+      stage:       task.stage       || 'backlog',
       priority:    task.priority    || 'media',
       description: task.description || '',
     })
@@ -182,8 +182,8 @@ export function TaskDrawer({ isOpen, onClose, task, onUpdate, onDelete }) {
             <SectionTitle>Columna</SectionTitle>
             <Select
               id="task-column"
-              value={form.column}
-              onChange={val => setField('column', val)}
+              value={form.stage}
+              onChange={val => setField('stage', val)}
               options={COLUMN_OPTIONS}
             />
           </div>

@@ -116,7 +116,7 @@ function TaskCardContent({ task, isOverlay = false, dragRef, dragListeners, drag
 function DraggableTask({ task, onOpen }) {
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
     id: task.id,
-    data: { column: task.column },
+    data: { stage: task.stage },
   })
   return (
     <div onClick={() => !isDragging && onOpen(task)}>
@@ -141,7 +141,7 @@ function InlineAddForm({ columnId, onAdd, onCancel }) {
 
   const handleAdd = async () => {
     if (!title.trim()) return
-    await onAdd({ title: title.trim(), priority, column: columnId })
+    await onAdd({ title: title.trim(), priority, stage: columnId })
   }
 
   return (
@@ -387,10 +387,10 @@ export default function ProjectBoard() {
     setActiveId(null)
     if (!over) return
     const task = localTasks.find(t => t.id === active.id)
-    if (!task || task.column === over.id) return
+    if (!task || task.stage === over.id) return
     // Optimistic update
-    setLocalTasks(prev => prev.map(t => t.id === active.id ? { ...t, column: over.id } : t))
-    await updateTask(active.id, { column: over.id })
+    setLocalTasks(prev => prev.map(t => t.id === active.id ? { ...t, stage: over.id } : t))
+    await updateTask(active.id, { stage: over.id })
   }, [localTasks, updateTask])
 
   const handleAddTask = useCallback(async (payload) => {
@@ -419,7 +419,7 @@ export default function ProjectBoard() {
   }
 
   const totalTasks = localTasks.length
-  const doneTasks  = localTasks.filter(t => t.column === 'hecho').length
+  const doneTasks  = localTasks.filter(t => t.stage === 'hecho').length
 
   return (
     <div id="project-board-page" className={styles.page}>
@@ -494,7 +494,7 @@ export default function ProjectBoard() {
             <KanbanColumn
               key={col.id}
               col={col}
-              tasks={localTasks.filter(t => t.column === col.id)}
+              tasks={localTasks.filter(t => t.stage === col.id)}
               addingTo={addingToCol}
               onSetAdding={setAddingToCol}
               onAdd={handleAddTask}

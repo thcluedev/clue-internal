@@ -9,7 +9,7 @@ export function useProjects() {
     setLoading(true)
     const { data } = await supabase
       .from('projects')
-      .select('*, companies(id, name), tasks(id, column)')
+      .select('*, companies(id, name), tasks(id, stage)')
       .order('created_at', { ascending: false })
     setProjects(data || [])
     setLoading(false)

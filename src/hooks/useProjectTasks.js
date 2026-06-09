@@ -39,7 +39,7 @@ export function useProjectTasks(projectId) {
     return { error }
   }
 
-  const byColumn = (col) => tasks.filter(t => t.column === col)
+  const byColumn = (col) => tasks.filter(t => t.stage === col)
 
   return { tasks, loading, byColumn, createTask, updateTask, deleteTask, refetch: fetchTasks }
 }
