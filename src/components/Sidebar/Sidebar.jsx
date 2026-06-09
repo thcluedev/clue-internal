@@ -2,10 +2,10 @@ import { NavLink } from 'react-router-dom'
 import { useAuth } from '../../hooks/useAuth'
 
 const NAV_ITEMS = [
-  { path: '/contactos',    label: 'Contactos',    icon: '👤', badge: null, id: 'nav-contactos' },
-  { path: '/crm',          label: 'CRM',          icon: '📊', badge: 0,    id: 'nav-crm' },
-  { path: '/cotizaciones', label: 'Cotizaciones', icon: '📄', badge: null, id: 'nav-cotizaciones' },
-  { path: '/proyectos',    label: 'Proyectos',    icon: '🗂️', badge: null, id: 'nav-proyectos' },
+  { path: '/contactos',    label: 'Contactos',    icon: '👤', badge: null, id: 'nav-contactos',    end: true  },
+  { path: '/crm',          label: 'CRM',          icon: '📊', badge: 0,    id: 'nav-crm',          end: true  },
+  { path: '/cotizaciones', label: 'Cotizaciones', icon: '📄', badge: null, id: 'nav-cotizaciones', end: false },
+  { path: '/proyectos',    label: 'Proyectos',    icon: '🗂️', badge: null, id: 'nav-proyectos',    end: true  },
 ]
 
 export function Sidebar() {
@@ -57,6 +57,7 @@ export function Sidebar() {
             key={item.path}
             id={item.id}
             to={item.path}
+            end={item.end}
             style={({ isActive }) => ({
               display: 'flex',
               alignItems: 'center',

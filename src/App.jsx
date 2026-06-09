@@ -5,6 +5,7 @@ import Login from './pages/Login/Login'
 import Contacts from './pages/Contacts/Contacts'
 import CRM from './pages/CRM/CRM'
 import Quotes from './pages/Quotes/Quotes'
+import QuoteEditor from './pages/Quotes/QuoteEditor'
 import Projects from './pages/Projects/Projects'
 import './styles/globals.css'
 import './styles/tokens.css'
@@ -38,6 +39,16 @@ export default function App() {
         <Route path="/cotizaciones" element={
           <PrivateRoute>
             <Layout><Quotes /></Layout>
+          </PrivateRoute>
+        } />
+        <Route path="/cotizaciones/nueva" element={
+          <PrivateRoute>
+            <Layout><QuoteEditor /></Layout>
+          </PrivateRoute>
+        } />
+        <Route path="/cotizaciones/:id" element={
+          <PrivateRoute>
+            <Layout><QuoteEditor /></Layout>
           </PrivateRoute>
         } />
         <Route path="/proyectos" element={
