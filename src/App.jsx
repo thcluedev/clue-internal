@@ -9,6 +9,8 @@ import QuoteEditor from './pages/Quotes/QuoteEditor'
 import Projects from './pages/Projects/Projects'
 import ProjectBoard from './pages/Projects/ProjectBoard'
 import Dashboard from './pages/Dashboard/Dashboard'
+import fondoVideo from './assets/fondos/fondoconmovimiento.mp4'
+import fondoPoster from './assets/fondos/fondo-hero.jpg'
 import './styles/globals.css'
 import './styles/tokens.css'
 
@@ -20,6 +22,24 @@ function PrivateRoute({ children }) {
 
 export default function App() {
   return (
+    <>
+      <video
+        autoPlay
+        muted
+        loop
+        playsInline
+        poster={fondoPoster}
+        style={{
+          position: 'fixed',
+          inset: 0,
+          width: '100%',
+          height: '100%',
+          objectFit: 'cover',
+          zIndex: -2,
+        }}
+      >
+        <source src={fondoVideo} type="video/mp4" />
+      </video>
     <BrowserRouter>
       <Routes>
         <Route path="/login" element={<Login />} />
@@ -66,5 +86,6 @@ export default function App() {
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
+    </>
   )
 }
