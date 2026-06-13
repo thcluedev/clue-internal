@@ -26,12 +26,18 @@ body::before {
   mix-blend-mode: overlay;
 }
 
-/* ── Overlay sobre el video de fondo ───────────────────────── */
+/* ── Fondo — imagen de habitación con overlay sutil ────────── */
 body::after {
   content: '';
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.42);
+  background:
+    /* Overlay muy sutil — asegura legibilidad de los paneles */
+    linear-gradient(
+      rgba(0, 0, 0, 0.06),
+      rgba(0, 0, 0, 0.06)
+    ),
+    url('../assets/fondos/fondo-hero.jpg') center / cover no-repeat;
   z-index: -1;
 }
 
