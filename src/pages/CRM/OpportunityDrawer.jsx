@@ -52,7 +52,7 @@ const EMPTY_FORM = {
   service: 'odoo',
   amount: '',
   currency: 'ARS',
-  responsible: '',
+  assigned_to: '',
   close_date: '',
   notes: '',
 }
@@ -77,7 +77,7 @@ export function OpportunityDrawer({ isOpen, onClose, opportunity, onCreate, onUp
         service:     opportunity.service || 'odoo',
         amount:      opportunity.amount ?? '',
         currency:    opportunity.currency || 'ARS',
-        responsible: opportunity.responsible || '',
+        assigned_to: opportunity.assigned_to || '',
         close_date:  opportunity.close_date || '',
         notes:       opportunity.notes || '',
       } : EMPTY_FORM)
@@ -100,14 +100,14 @@ export function OpportunityDrawer({ isOpen, onClose, opportunity, onCreate, onUp
     setSaving(true)
     const payload = {
       ...form,
-      amount: form.amount === '' ? null : Number(form.amount),
-      company_id: form.company_id || null,
-      close_date: form.close_date || null,
+      amount:      form.amount === '' ? null : Number(form.amount),
+      company_id:  form.company_id  || null,
+      close_date:  form.close_date  || null,
+      assigned_to: form.assigned_to || null,
+      notes:       form.notes       || null,
     }
     if (isCreate) {
-      console.log('payload enviado:', JSON.stringify(payload, null, 2))
       const { error } = await onCreate(payload)
-      if (error) console.log('error supabase:', JSON.stringify(error, null, 2))
       if (!error) onClose()
     } else {
       await onUpdate(opportunity.id, payload)
@@ -133,7 +133,7 @@ export function OpportunityDrawer({ isOpen, onClose, opportunity, onCreate, onUp
         service:     opportunity.service || 'odoo',
         amount:      opportunity.amount ?? '',
         currency:    opportunity.currency || 'ARS',
-        responsible: opportunity.responsible || '',
+        assigned_to: opportunity.assigned_to || '',
         close_date:  opportunity.close_date || '',
         notes:       opportunity.notes || '',
       })
@@ -286,10 +286,10 @@ export function OpportunityDrawer({ isOpen, onClose, opportunity, onCreate, onUp
                   <CurrencyToggle />
                 </div>
                 <Input
-                  id="opp-create-responsible"
+                  id="opp-create-assigned_to"
                   placeholder="Responsable"
-                  value={form.responsible}
-                  onChange={e => setField('responsible', e.target.value)}
+                  value={form.assigned_to}
+                  onChange={e => setField('assigned_to', e.target.value)}
                 />
                 <Input
                   id="opp-create-closedate"
@@ -377,10 +377,10 @@ export function OpportunityDrawer({ isOpen, onClose, opportunity, onCreate, onUp
                       <CurrencyToggle />
                     </div>
                     <Input
-                      id="opp-edit-responsible"
+                      id="opp-edit-assigned_to"
                       placeholder="Responsable"
-                      value={form.responsible}
-                      onChange={e => setField('responsible', e.target.value)}
+                      value={form.assigned_to}
+                      onChange={e => setField('assigned_to', e.target.value)}
                     />
                   </div>
                 ) : (
@@ -388,7 +388,7 @@ export function OpportunityDrawer({ isOpen, onClose, opportunity, onCreate, onUp
                     {[
                       { label: 'SERVICIO',    value: SERVICE_OPTIONS.find(s => s.value === opportunity.service)?.label },
                       { label: 'MONTO',       value: opportunity.amount ? `${opportunity.currency} ${Number(opportunity.amount).toLocaleString('es-AR')}` : null },
-                      { label: 'RESPONSABLE', value: opportunity.responsible },
+                      { label: 'RESPONSABLE', value: opportunity.assigned_to },
                     ].map(row => (
                       <div key={row.label} style={{
                         display: 'flex', justifyContent: 'space-between', alignItems: 'center',
