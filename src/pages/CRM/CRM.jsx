@@ -8,6 +8,7 @@ import { CSS } from '@dnd-kit/utilities'
 import { useOpportunities } from '../../hooks/useOpportunities'
 import { Button, Card, Badge, ProfileAvatar } from '../../components/ui'
 import { OpportunityDrawer } from './OpportunityDrawer'
+import { ActivitiesView } from './ActivitiesView'
 import styles from './CRM.module.css'
 
 /* ── Constants ─────────────────────────────────────────────── */
@@ -185,12 +186,14 @@ function KanbanColumn({ stage, label, opps, onOpen }) {
 export default function CRM() {
   const { opportunities, loading, createOpportunity, updateOpportunity, deleteOpportunity } = useOpportunities()
 
-  const [localOpps, setLocalOpps]       = useState([])
+  const [activeTab, setActiveTab]         = useState('pipeline')
+  const [newActivityOpen, setNewActivityOpen] = useState(false)
+  const [localOpps, setLocalOpps]         = useState([])
   const [serviceFilter, setServiceFilter] = useState('todos')
-  const [drawerOpen, setDrawerOpen]     = useState(false)
+  const [drawerOpen, setDrawerOpen]       = useState(false)
   const [selectedOppId, setSelectedOppId] = useState(null)
-  const [pendingMove, setPendingMove]   = useState(null)
-  const [activeId, setActiveId]         = useState(null)
+  const [pendingMove, setPendingMove]     = useState(null)
+  const [activeId, setActiveId]           = useState(null)
 
   // Derived selected opp — stays fresh after updates
   const selectedOpp = useMemo(
@@ -290,66 +293,104 @@ export default function CRM() {
         id="crm-topbar"
         style={{ padding: '10px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', flexShrink: 0, flexWrap: 'wrap' }}
       >
-        <span style={{ fontFamily: 'var(--font-mono)', fontSize: '9px', color: 'var(--stone)', textTransform: 'uppercase', letterSpacing: '0.2em', whiteSpace: 'nowrap' }}>
-          02 — CRM · PIPELINE
-        </span>
-        <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
-          <div id="crm-service-filters" className={styles.serviceFilters}>
-            {SERVICES.map(s => (
-              <Button
-                key={s}
-                id={`crm-filter-${s}`}
-                variant="ghost"
-                size="sm"
-                onClick={() => setServiceFilter(serviceFilter === s ? 'todos' : s)}
-                style={serviceFilter === s
-                  ? { borderColor: 'var(--ember-border)', color: 'var(--ember)', background: 'var(--ember-dim)' }
-                  : {}
-                }
-              >
-                {s === 'todos' ? 'Todos' : s === 'ecommerce' ? 'E-commerce' : s.charAt(0).toUpperCase() + s.slice(1)}
-              </Button>
-            ))}
-          </div>
-          <Button id="crm-btn-new" variant="primary" size="sm" onClick={() => openDrawer(null)}>
-            + Nueva oportunidad
-          </Button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <span style={{ fontFamily: 'var(--font-mono)', fontSize: '9px', color: 'var(--stone)', textTransform: 'uppercase', letterSpacing: '0.2em', whiteSpace: 'nowrap' }}>
+            02 — CRM
+          </span>
+          <Button
+            id="crm-tab-pipeline"
+            variant={activeTab === 'pipeline' ? 'primary' : 'ghost'}
+            size="sm"
+            onClick={() => setActiveTab('pipeline')}
+          >Pipeline</Button>
+          <Button
+            id="crm-tab-actividades"
+            variant={activeTab === 'actividades' ? 'primary' : 'ghost'}
+            size="sm"
+            onClick={() => setActiveTab('actividades')}
+          >Actividades</Button>
         </div>
+
+        {activeTab === 'pipeline' && (
+          <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
+            <div id="crm-service-filters" className={styles.serviceFilters}>
+              {SERVICES.map(s => (
+                <Button
+                  key={s}
+                  id={`crm-filter-${s}`}
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setServiceFilter(serviceFilter === s ? 'todos' : s)}
+                  style={serviceFilter === s
+                    ? { borderColor: 'var(--ember-border)', color: 'var(--ember)', background: 'var(--ember-dim)' }
+                    : {}
+                  }
+                >
+                  {s === 'todos' ? 'Todos' : s === 'ecommerce' ? 'E-commerce' : s.charAt(0).toUpperCase() + s.slice(1)}
+                </Button>
+              ))}
+            </div>
+            <Button id="crm-btn-new" variant="primary" size="sm" onClick={() => openDrawer(null)}>
+              + Nueva oportunidad
+            </Button>
+          </div>
+        )}
+
+        {activeTab === 'actividades' && (
+          <Button
+            id="crm-btn-new-activity"
+            variant="primary"
+            size="sm"
+            onClick={() => setNewActivityOpen(true)}
+          >
+            + Nueva actividad
+          </Button>
+        )}
       </Card>
 
-      {/* Kanban board */}
-      {loading ? (
-        <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--stone)', letterSpacing: '0.08em' }}>
-          CARGANDO...
-        </div>
-      ) : (
-        <DndContext
-          sensors={sensors}
-          onDragStart={handleDragStart}
-          onDragEnd={handleDragEnd}
-        >
-          <div id="crm-board" className={styles.board}>
-            {STAGES.map(({ id, label }) => (
-              <KanbanColumn
-                key={id}
-                stage={id}
-                label={label}
-                opps={oppsByStage(id)}
-                onOpen={openDrawer}
-              />
-            ))}
+      {/* Pipeline */}
+      {activeTab === 'pipeline' && (
+        loading ? (
+          <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--stone)', letterSpacing: '0.08em' }}>
+            CARGANDO...
           </div>
+        ) : (
+          <DndContext
+            sensors={sensors}
+            onDragStart={handleDragStart}
+            onDragEnd={handleDragEnd}
+          >
+            <div id="crm-board" className={styles.board}>
+              {STAGES.map(({ id, label }) => (
+                <KanbanColumn
+                  key={id}
+                  stage={id}
+                  label={label}
+                  opps={oppsByStage(id)}
+                  onOpen={openDrawer}
+                />
+              ))}
+            </div>
 
-          <DragOverlay dropAnimation={{ duration: 180, easing: 'ease' }}>
-            {activeOpp ? (
-              <OppCardContent opp={activeOpp} isOverlay />
-            ) : null}
-          </DragOverlay>
-        </DndContext>
+            <DragOverlay dropAnimation={{ duration: 180, easing: 'ease' }}>
+              {activeOpp ? (
+                <OppCardContent opp={activeOpp} isOverlay />
+              ) : null}
+            </DragOverlay>
+          </DndContext>
+        )
       )}
 
-      {/* Toast de confirmación */}
-      {pendingMove && (
+      {/* Activities view */}
+      {activeTab === 'actividades' && (
+        <ActivitiesView
+          newActivityOpen={newActivityOpen}
+          onNewActivityClose={() => setNewActivityOpen(false)}
+        />
+      )}
+
+      {/* Toast de confirmación (pipeline only) */}
+      {activeTab === 'pipeline' && pendingMove && (
         <div id="crm-move-toast" className={styles.toast}>
           <p className={styles.toastText}>
             ¿Mover <strong>"{pendingMove.title}"</strong> a{' '}

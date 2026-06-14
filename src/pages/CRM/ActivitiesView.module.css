@@ -1,0 +1,344 @@
+/* ── Outer wrapper ───────────────────────────────────────── */
+.view {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* ── Topbar controls ─────────────────────────────────────── */
+.toggleGroup {
+  display: flex;
+  gap: 4px;
+}
+
+.summary {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--stone);
+  white-space: nowrap;
+}
+
+.summaryOverdue {
+  color: var(--ember);
+  font-weight: 500;
+}
+
+/* ── List mode ───────────────────────────────────────────── */
+.listWrap {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.08) transparent;
+  padding-right: 2px;
+}
+
+.section {
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(20px) saturate(1.5);
+  -webkit-backdrop-filter: blur(20px) saturate(1.5);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  cursor: pointer;
+  transition: background 0.12s;
+  user-select: none;
+}
+
+.sectionHeader:hover {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.sectionHeaderStatic {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.sectionLabel {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--stone);
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  flex: 1;
+}
+
+.sectionBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 7px;
+  border-radius: 100px;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--stone);
+}
+
+.collapseIcon {
+  font-size: 8px;
+  color: var(--stone);
+  opacity: 0.5;
+}
+
+.sectionEmpty {
+  padding: 14px 16px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--stone);
+  text-align: center;
+}
+
+/* ── Activity row ────────────────────────────────────────── */
+.activityRow {
+  display: grid;
+  grid-template-columns: 24px 20px 1fr auto auto auto auto;
+  gap: 10px;
+  padding: 10px 16px;
+  align-items: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  transition: background 0.12s, opacity 0.32s, transform 0.32s;
+}
+
+.activityRow:last-child {
+  border-bottom: none;
+}
+
+.activityRow:hover {
+  background: rgba(255, 255, 255, 0.025);
+}
+
+.activityRowFading {
+  opacity: 0;
+  transform: translateY(-4px);
+}
+
+.checkbox {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(255, 255, 255, 0.22);
+  background: transparent;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: border-color 0.15s, background 0.15s;
+  padding: 0;
+}
+
+.checkbox:hover {
+  border-color: var(--ember);
+  background: rgba(232, 76, 30, 0.08);
+}
+
+.typeIcon {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--stone);
+  text-align: center;
+}
+
+.activityTitle {
+  font-family: var(--font-sans);
+  font-size: 13px;
+  color: var(--off-white);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.activityMeta {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--stone);
+  text-align: right;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 180px;
+}
+
+.dateText {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  white-space: nowrap;
+}
+
+.dateOverdue { color: var(--ember); }
+.dateToday   { color: #4a9a5a; }
+.dateFuture  { color: var(--stone); }
+
+.openOppBtn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--stone);
+  padding: 2px 4px;
+  border-radius: 4px;
+  opacity: 0;
+  transition: opacity 0.15s, color 0.15s;
+  line-height: 1;
+}
+
+.activityRow:hover .openOppBtn {
+  opacity: 1;
+}
+
+.openOppBtn:hover {
+  color: var(--off-white);
+}
+
+.subDateHeader {
+  padding: 5px 16px;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--stone);
+  background: rgba(255, 255, 255, 0.025);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  letter-spacing: 0.06em;
+}
+
+/* ── Calendar mode ───────────────────────────────────────── */
+.calWrap {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.calTitle {
+  font-family: var(--font-sans);
+  font-size: 15px;
+  color: var(--off-white);
+  font-weight: 400;
+}
+
+.calGrid {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 6px;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.calCol {
+  display: flex;
+  flex-direction: column;
+  background: rgba(255, 255, 255, 0.055);
+  backdrop-filter: blur(20px) saturate(1.5);
+  -webkit-backdrop-filter: blur(20px) saturate(1.5);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  overflow: hidden;
+  transition: border-color 0.15s;
+}
+
+.calColToday {
+  background: rgba(232, 76, 30, 0.04);
+  border-color: rgba(232, 76, 30, 0.22);
+}
+
+.calColOver {
+  border-color: rgba(232, 76, 30, 0.50);
+  box-shadow: 0 0 0 1px rgba(232, 76, 30, 0.20) inset;
+}
+
+.calColNoDate {
+  background: rgba(255, 255, 255, 0.025);
+  border-style: dashed;
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+.calColHeader {
+  padding: 8px 6px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.calDayName {
+  font-family: var(--font-mono);
+  font-size: 8px;
+  color: var(--stone);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.calDayNum {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  color: var(--off-white);
+  margin-top: 2px;
+  line-height: 1;
+}
+
+.calDayNumToday {
+  color: var(--ember);
+}
+
+.calColBody {
+  flex: 1;
+  overflow-y: auto;
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  scrollbar-width: none;
+}
+
+.calColBody::-webkit-scrollbar {
+  display: none;
+}
+
+.calCard {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-left-width: 2px;
+  border-radius: 6px;
+  padding: 6px 8px;
+  cursor: grab;
+  user-select: none;
+  touch-action: none;
+  transition: background 0.12s;
+}
+
+.calCard:hover {
+  background: rgba(255, 255, 255, 0.07);
+}
+
+.calCardDragging {
+  opacity: 0.25;
+}
+
+.calCardTitle {
+  font-family: var(--font-sans);
+  font-size: 11px;
+  color: var(--off-white);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-bottom: 5px;
+  line-height: 1.3;
+}
