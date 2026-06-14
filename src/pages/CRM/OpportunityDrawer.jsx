@@ -105,7 +105,9 @@ export function OpportunityDrawer({ isOpen, onClose, opportunity, onCreate, onUp
       close_date: form.close_date || null,
     }
     if (isCreate) {
+      console.log('payload enviado:', JSON.stringify(payload, null, 2))
       const { error } = await onCreate(payload)
+      if (error) console.log('error supabase:', JSON.stringify(error, null, 2))
       if (!error) onClose()
     } else {
       await onUpdate(opportunity.id, payload)
