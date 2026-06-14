@@ -1,18 +1,18 @@
 :root {
-  /* Base — fallback si la imagen no carga */
-  --bg-base:        #1a1614;
-  --bg-surface:     rgba(22, 20, 18, 0.62);
-  --bg-surface-2:   rgba(255, 255, 255, 0.18);
-  --bg-surface-3:   rgba(255, 255, 255, 0.10);
+  /* Base */
+  --bg-base:        #0e0c0a;
+  --bg-surface:     rgba(255, 255, 255, 0.055);
+  --bg-surface-2:   rgba(255, 255, 255, 0.09);
+  --bg-surface-3:   rgba(255, 255, 255, 0.06);
 
   /* Glass */
-  --glass-blur:     blur(28px) saturate(1.6);
-  --glass-border:   1px solid rgba(255, 255, 255, 0.22);
-  --glass-border-2: 1px solid rgba(255, 255, 255, 0.28);
+  --glass-blur:     blur(28px) saturate(1.5);
+  --glass-border:   1px solid rgba(255, 255, 255, 0.14);
+  --glass-border-2: 1px solid rgba(255, 255, 255, 0.20);
 
-  /* Glass depth — sombras suaves para fondo claro */
-  --glass-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.25);
-  --glass-shadow:    0 8px 32px rgba(0, 0, 0, 0.18), 0 2px 6px rgba(0, 0, 0, 0.10);
+  /* Glass depth — sombras más fuertes sobre fondo oscuro */
+  --glass-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.18);
+  --glass-shadow:    0 8px 40px rgba(0, 0, 0, 0.50), 0 2px 8px rgba(0, 0, 0, 0.30);
 
   /* Colors */
   --ember:          #e84c1e;

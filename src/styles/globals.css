@@ -26,18 +26,15 @@ body::before {
   mix-blend-mode: overlay;
 }
 
-/* ── Fondo — imagen de habitación con overlay sutil ────────── */
+/* ── Fondo — gradiente oscuro cálido ───────────────────────── */
 body::after {
   content: '';
   position: fixed;
   inset: 0;
   background:
-    /* Overlay muy sutil — asegura legibilidad de los paneles */
-    linear-gradient(
-      rgba(0, 0, 0, 0.06),
-      rgba(0, 0, 0, 0.06)
-    ),
-    url('../assets/fondos/fondo-hero.jpg') center / cover no-repeat;
+    radial-gradient(ellipse at 8% 92%, rgba(232, 76, 30, 0.10) 0%, transparent 52%),
+    radial-gradient(ellipse at 88% 8%,  rgba(154, 148, 137, 0.05) 0%, transparent 45%),
+    radial-gradient(ellipse at 50% 50%, #1c1917 0%, #0e0c0a 100%);
   z-index: -1;
 }
 
