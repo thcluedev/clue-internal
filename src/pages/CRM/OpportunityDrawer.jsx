@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react'
 import { Button, Input, Badge, Select, Textarea, UserSelect, ProfileAvatar } from '../../components/ui'
 import { useCompanies } from '../../hooks/useCompanies'
+import { useActivities } from '../../hooks/useActivities'
+import { supabase } from '../../lib/supabase'
 import styles from './CRM.module.css'
 
 const STAGE_OPTIONS = [
@@ -45,6 +47,274 @@ function SectionTitle({ children, id }) {
   )
 }
 
+/* ── Activity helpers ───────────────────────────────────────── */
+const ACTIVITY_TYPE_OPTIONS = [
+  { value: 'llamada', label: 'Llamada' },
+  { value: 'reunion', label: 'Reunión' },
+  { value: 'mail',    label: 'Mail' },
+  { value: 'tarea',   label: 'Tarea' },
+  { value: 'otro',    label: 'Otro' },
+]
+
+const ACTIVITY_TYPE_ICONS = {
+  llamada: '📞', reunion: '👥', mail: '✉️', tarea: '✓', otro: '·',
+}
+
+const EMPTY_ACTIVITY_FORM = { type: 'llamada', title: '', assigned_to: '', due_date: '', notes: '' }
+
+function isDateOverdue(dateStr) {
+  if (!dateStr) return false
+  const d = new Date(dateStr + 'T00:00:00')
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  return d <= today
+}
+
+function formatShortDate(dateStr) {
+  if (!dateStr) return null
+  const d = new Date(dateStr + 'T00:00:00')
+  return `${d.getDate().toString().padStart(2, '0')}/${(d.getMonth() + 1).toString().padStart(2, '0')}`
+}
+
+/* ── ActivitiesSection ─────────────────────────────────────── */
+function ActivitiesSection({ opportunityId }) {
+  const { pending, done: doneActivities, loading, createActivity, toggleDone, deleteActivity } = useActivities(opportunityId)
+
+  const [showForm,    setShowForm]    = useState(false)
+  const [form,        setForm]        = useState({ ...EMPTY_ACTIVITY_FORM })
+  const [titleError,  setTitleError]  = useState(false)
+  const [saving,      setSaving]      = useState(false)
+  const [showNotes,   setShowNotes]   = useState(false)
+  const [showHistory, setShowHistory] = useState(false)
+  const [fadingIds,   setFadingIds]   = useState(new Set())
+  const [currentUserId, setCurrentUserId] = useState(null)
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (user) setCurrentUserId(user.id)
+    })
+  }, [])
+
+  const setField = (key, val) => setForm(f => ({ ...f, [key]: val }))
+
+  const openForm = () => {
+    setForm({ ...EMPTY_ACTIVITY_FORM, assigned_to: currentUserId || '' })
+    setTitleError(false)
+    setShowNotes(false)
+    setShowForm(true)
+  }
+
+  const cancelForm = () => {
+    setShowForm(false)
+    setForm(EMPTY_ACTIVITY_FORM)
+    setShowNotes(false)
+    setTitleError(false)
+  }
+
+  const handleCreate = async () => {
+    if (!form.title.trim()) { setTitleError(true); return }
+    setTitleError(false)
+    setSaving(true)
+    const { error } = await createActivity({
+      type:        form.type,
+      title:       form.title.trim(),
+      assigned_to: form.assigned_to || null,
+      due_date:    form.due_date    || null,
+      notes:       form.notes       || null,
+    })
+    if (!error) cancelForm()
+    setSaving(false)
+  }
+
+  const handleToggleDone = (id, currentDone) => {
+    if (!currentDone) {
+      setFadingIds(prev => new Set([...prev, id]))
+      setTimeout(async () => {
+        await toggleDone(id, false)
+        setFadingIds(prev => { const s = new Set(prev); s.delete(id); return s })
+      }, 340)
+    } else {
+      toggleDone(id, true)
+    }
+  }
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+      {/* Header */}
+      <div style={{
+        display: 'flex', alignItems: 'center', gap: '8px',
+        paddingBottom: '0.5rem', borderBottom: '1px solid rgba(255,255,255,0.06)',
+      }}>
+        <span style={{ fontFamily: 'var(--font-mono)', fontSize: '9px', color: 'var(--stone)', textTransform: 'uppercase', letterSpacing: '0.15em' }}>
+          Actividades
+        </span>
+        {pending.length > 0 && (
+          <span className={styles.actCount}>{pending.length}</span>
+        )}
+        <button
+          onClick={showForm ? cancelForm : openForm}
+          style={{
+            marginLeft: 'auto',
+            background: 'transparent',
+            border: '1px solid rgba(255,255,255,0.12)',
+            borderRadius: '100px',
+            padding: '2px 10px',
+            fontFamily: 'var(--font-mono)',
+            fontSize: '9px',
+            color: 'var(--stone)',
+            cursor: 'pointer',
+            letterSpacing: '0.06em',
+            transition: 'all 0.15s',
+          }}
+          onMouseEnter={e => { e.currentTarget.style.color = 'var(--off-white)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.25)' }}
+          onMouseLeave={e => { e.currentTarget.style.color = 'var(--stone)';     e.currentTarget.style.borderColor = 'rgba(255,255,255,0.12)' }}
+        >
+          {showForm ? 'Cancelar' : '+ Agregar'}
+        </button>
+      </div>
+
+      {/* Inline add form */}
+      {showForm && (
+        <div className={styles.actForm}>
+          <div className={styles.actFormRow}>
+            <div style={{ flex: '0 0 136px' }}>
+              <Select
+                value={form.type}
+                onChange={val => setField('type', val)}
+                options={ACTIVITY_TYPE_OPTIONS}
+              />
+            </div>
+            <div style={{ flex: 1 }}>
+              <Input
+                placeholder="Título *"
+                value={form.title}
+                onChange={e => { setField('title', e.target.value); setTitleError(false) }}
+                error={titleError ? 'Requerido' : undefined}
+              />
+            </div>
+          </div>
+          <div className={styles.actFormRow}>
+            <div style={{ flex: 1 }}>
+              <UserSelect
+                value={form.assigned_to}
+                onChange={val => setField('assigned_to', val)}
+              />
+            </div>
+            <div style={{ flex: '0 0 148px' }}>
+              <Input
+                type="date"
+                value={form.due_date}
+                onChange={e => setField('due_date', e.target.value)}
+              />
+            </div>
+          </div>
+          {!showNotes ? (
+            <button className={styles.actNotesToggle} onClick={() => setShowNotes(true)}>
+              + agregar nota
+            </button>
+          ) : (
+            <Textarea
+              placeholder="Nota..."
+              value={form.notes}
+              onChange={e => setField('notes', e.target.value)}
+              resize={false}
+              minHeight="70px"
+            />
+          )}
+          <div className={styles.actFormActions}>
+            <Button variant="ghost" size="sm" onClick={cancelForm}>Cancelar</Button>
+            <Button variant="primary" size="sm" onClick={handleCreate} disabled={saving} loading={saving}>
+              Agregar actividad
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {/* Pending list */}
+      {loading ? (
+        <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: 'var(--stone)', padding: '8px 0' }}>
+          Cargando...
+        </div>
+      ) : pending.length === 0 ? (
+        <div className={styles.actEmptyState}>Sin actividades pendientes.</div>
+      ) : (
+        <div className={styles.actList}>
+          {pending.map(act => {
+            const overdue  = isDateOverdue(act.due_date)
+            const dateText = formatShortDate(act.due_date)
+            const fading   = fadingIds.has(act.id)
+            return (
+              <div key={act.id} className={`${styles.actRow} ${fading ? styles.actRowFading : ''}`}>
+                <button
+                  className={styles.actCheckbox}
+                  onClick={() => handleToggleDone(act.id, act.done)}
+                  title="Marcar como completada"
+                />
+                <span className={styles.actIcon}>{ACTIVITY_TYPE_ICONS[act.type] || '·'}</span>
+                <div className={styles.actContent}>
+                  <span className={styles.actTitle}>{act.title}</span>
+                  {dateText && (
+                    <span className={`${styles.actDate} ${overdue ? styles.actDateOverdue : ''}`}>
+                      {dateText}
+                    </span>
+                  )}
+                </div>
+                <ProfileAvatar userId={act.assigned_to} size="xs" />
+                <div className={styles.actRowHoverActions}>
+                  <button
+                    className={styles.actDeleteBtn}
+                    onClick={() => deleteActivity(act.id)}
+                    title="Eliminar"
+                  >×</button>
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      )}
+
+      {/* Completed history */}
+      {doneActivities.length > 0 && (
+        <>
+          <button className={styles.actHistoryToggle} onClick={() => setShowHistory(h => !h)}>
+            {showHistory ? '▲' : '▼'} Ver historial ({doneActivities.length})
+          </button>
+          {showHistory && (
+            <div className={styles.actList}>
+              {doneActivities.map(act => (
+                <div key={act.id} className={`${styles.actRow} ${styles.actRowDone}`}>
+                  <button
+                    className={`${styles.actCheckbox} ${styles.actCheckboxDone}`}
+                    onClick={() => handleToggleDone(act.id, act.done)}
+                    title="Marcar como pendiente"
+                  >
+                    <span className={styles.actCheckmarkIcon}>✓</span>
+                  </button>
+                  <span className={styles.actIcon}>{ACTIVITY_TYPE_ICONS[act.type] || '·'}</span>
+                  <div className={styles.actContent}>
+                    <span className={`${styles.actTitle} ${styles.actTitleDone}`}>{act.title}</span>
+                    {act.done_at && (
+                      <span className={styles.actDate}>{formatShortDate(act.done_at)}</span>
+                    )}
+                  </div>
+                  <div className={styles.actRowHoverActions}>
+                    <button
+                      className={styles.actDeleteBtn}
+                      onClick={() => deleteActivity(act.id)}
+                      title="Eliminar"
+                    >×</button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </>
+      )}
+    </div>
+  )
+}
+
+/* ── Opportunity form ───────────────────────────────────────── */
 const EMPTY_FORM = {
   title: '',
   company_id: null,
@@ -444,6 +714,11 @@ export function OpportunityDrawer({ isOpen, onClose, opportunity, onCreate, onUp
                   </div>
                 )}
               </div>
+
+              {/* Actividades */}
+              {!editing && (
+                <ActivitiesSection opportunityId={opportunity.id} />
+              )}
 
               {/* Edit actions */}
               {editing && (

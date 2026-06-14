@@ -13,7 +13,8 @@ const NAV_ITEMS = [
 
 export function Sidebar() {
   const { user, signOut } = useAuth()
-  const [crmCount, setCrmCount] = useState(null)
+  const [crmCount, setCrmCount]             = useState(null)
+  const [myActivitiesCount, setMyActivitiesCount] = useState(null)
 
   useEffect(() => {
     supabase
@@ -22,6 +23,16 @@ export function Sidebar() {
       .not('stage', 'in', '(cerrado,perdido)')
       .then(({ count }) => { if (count !== null) setCrmCount(count) })
   }, [])
+
+  useEffect(() => {
+    if (!user?.id) return
+    supabase
+      .from('activities')
+      .select('id', { count: 'exact' })
+      .eq('assigned_to', user.id)
+      .eq('done', false)
+      .then(({ count }) => { if (count !== null) setMyActivitiesCount(count) })
+  }, [user?.id])
 
   const initials = user?.email
     ? user.email.slice(0, 2).toUpperCase()
@@ -87,21 +98,42 @@ export function Sidebar() {
           >
             <span style={{ fontSize: '14px' }}>{item.icon}</span>
             <span id={`${item.id}-label`} style={{ flex: 1 }}>{item.label}</span>
-            {item.id === 'nav-crm' && crmCount !== null && (
-              <span
-                id="nav-crm-badge"
-                style={{
-                  background: 'rgba(232,76,30,0.14)',
-                  border: '1px solid rgba(232,76,30,0.30)',
-                  borderRadius: '100px',
-                  padding: '1px 7px',
-                  fontSize: '10px',
-                  fontFamily: 'var(--font-mono)',
-                  color: 'var(--ember)',
-                }}
-              >
-                {crmCount}
-              </span>
+            {item.id === 'nav-crm' && (crmCount !== null || (myActivitiesCount !== null && myActivitiesCount > 0)) && (
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '3px' }}>
+                {crmCount !== null && (
+                  <span
+                    id="nav-crm-badge"
+                    style={{
+                      background: 'rgba(232,76,30,0.14)',
+                      border: '1px solid rgba(232,76,30,0.30)',
+                      borderRadius: '100px',
+                      padding: '1px 7px',
+                      fontSize: '10px',
+                      fontFamily: 'var(--font-mono)',
+                      color: 'var(--ember)',
+                    }}
+                  >
+                    {crmCount}
+                  </span>
+                )}
+                {myActivitiesCount !== null && myActivitiesCount > 0 && (
+                  <span
+                    id="nav-activities-badge"
+                    style={{
+                      background: 'rgba(232,76,30,0.08)',
+                      border: '1px solid rgba(232,76,30,0.20)',
+                      borderRadius: '100px',
+                      padding: '1px 6px',
+                      fontSize: '9px',
+                      fontFamily: 'var(--font-mono)',
+                      color: 'rgba(232,76,30,0.65)',
+                      letterSpacing: '0.04em',
+                    }}
+                  >
+                    {myActivitiesCount} ✓
+                  </span>
+                )}
+              </div>
             )}
           </NavLink>
         ))}

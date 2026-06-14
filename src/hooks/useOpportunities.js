@@ -9,7 +9,7 @@ export function useOpportunities() {
     setLoading(true)
     const { data } = await supabase
       .from('opportunities')
-      .select('*, companies(id, name)')
+      .select('*, companies(id, name), activities(id, done)')
       .order('position', { ascending: true })
     setOpportunities(data || [])
     setLoading(false)

@@ -131,6 +131,7 @@
 
 /* ── Opp card ─────────────────────────────────────────────── */
 .oppCard {
+  position: relative;
   background: rgba(22, 20, 18, 0.58);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
@@ -238,6 +239,224 @@
   font-family: var(--font-mono);
   font-size: 9px;
   color: var(--stone);
+}
+
+/* ── Pending activities dot on card ──────────────────────── */
+.actDot {
+  position: absolute;
+  top: 9px;
+  right: 9px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--ember);
+  box-shadow: 0 0 5px rgba(232, 76, 30, 0.55);
+  cursor: default;
+}
+
+/* ── Activities section (in drawer) ──────────────────────── */
+.actCount {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 7px;
+  border-radius: 100px;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--stone);
+}
+
+.actList {
+  display: flex;
+  flex-direction: column;
+}
+
+.actRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  position: relative;
+  transition: opacity 0.32s, transform 0.32s;
+}
+
+.actRow:last-child {
+  border-bottom: none;
+}
+
+.actRowFading {
+  opacity: 0;
+  transform: translateY(-4px);
+}
+
+.actRowDone {
+  opacity: 0.4;
+}
+
+.actCheckbox {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(255, 255, 255, 0.22);
+  background: transparent;
+  cursor: pointer;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.15s, background 0.15s;
+  padding: 0;
+}
+
+.actCheckbox:hover {
+  border-color: var(--ember);
+}
+
+.actCheckboxDone {
+  border-color: var(--ember);
+  background: rgba(232, 76, 30, 0.18);
+}
+
+.actCheckmarkIcon {
+  font-size: 10px;
+  color: var(--ember);
+  line-height: 1;
+}
+
+.actIcon {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--stone);
+  flex-shrink: 0;
+  width: 16px;
+  text-align: center;
+}
+
+.actContent {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.actTitle {
+  font-family: var(--font-sans);
+  font-size: 13px;
+  color: var(--off-white);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.actTitleDone {
+  text-decoration: line-through;
+  color: var(--stone);
+}
+
+.actDate {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--stone);
+}
+
+.actDateOverdue {
+  color: var(--ember);
+}
+
+.actRowHoverActions {
+  opacity: 0;
+  transition: opacity 0.15s;
+  display: flex;
+  align-items: center;
+}
+
+.actRow:hover .actRowHoverActions {
+  opacity: 1;
+}
+
+.actDeleteBtn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--stone);
+  font-size: 16px;
+  padding: 0 4px;
+  line-height: 1;
+  transition: color 0.15s;
+}
+
+.actDeleteBtn:hover {
+  color: #fca5a5;
+}
+
+.actEmptyState {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--stone);
+  padding: 10px 0;
+}
+
+.actHistoryToggle {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--stone);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 4px 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: color 0.15s;
+}
+
+.actHistoryToggle:hover {
+  color: var(--off-white);
+}
+
+/* ── Activity inline form ─────────────────────────────────── */
+.actForm {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+}
+
+.actFormRow {
+  display: flex;
+  gap: 8px;
+}
+
+.actFormActions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  margin-top: 2px;
+}
+
+.actNotesToggle {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--stone);
+  padding: 2px 0;
+  letter-spacing: 0.05em;
+  text-align: left;
+  transition: color 0.15s;
+}
+
+.actNotesToggle:hover {
+  color: var(--off-white);
 }
 
 /* ── Empty state ──────────────────────────────────────────── */

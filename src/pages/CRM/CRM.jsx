@@ -42,7 +42,8 @@ function formatCloseDate(dateStr) {
 
 /* ── OppCardContent — pure display ────────────────────────── */
 function OppCardContent({ opp, isOverlay = false, dragListeners, dragAttributes, dragRef, isDragging }) {
-  const svc = SERVICE_STYLE[opp.service]
+  const svc          = SERVICE_STYLE[opp.service]
+  const pendingCount = opp.activities?.filter(a => !a.done).length || 0
 
   return (
     <div
@@ -105,6 +106,13 @@ function OppCardContent({ opp, isOverlay = false, dragListeners, dragAttributes,
           )}
         </div>
       </div>
+
+      {pendingCount > 0 && (
+        <span
+          className={styles.actDot}
+          title={`${pendingCount} actividad${pendingCount !== 1 ? 'es' : ''} pendiente${pendingCount !== 1 ? 's' : ''}`}
+        />
+      )}
     </div>
   )
 }
