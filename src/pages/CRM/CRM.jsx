@@ -6,7 +6,7 @@ import {
 } from '@dnd-kit/core'
 import { CSS } from '@dnd-kit/utilities'
 import { useOpportunities } from '../../hooks/useOpportunities'
-import { Button, Card, Badge } from '../../components/ui'
+import { Button, Card, Badge, ProfileAvatar } from '../../components/ui'
 import { OpportunityDrawer } from './OpportunityDrawer'
 import styles from './CRM.module.css'
 
@@ -69,6 +69,9 @@ function OppCardContent({ opp, isOverlay = false, dragListeners, dragAttributes,
         <span className={styles.oppCompany}>
           {opp.companies?.name || '—'}
         </span>
+      </div>
+
+      <div className={styles.oppFooter}>
         {opp.service && (
           <span style={{
             display: 'inline-flex',
@@ -86,18 +89,22 @@ function OppCardContent({ opp, isOverlay = false, dragListeners, dragAttributes,
             {opp.service}
           </span>
         )}
-      </div>
 
-      {(opp.amount > 0 || opp.close_date) && (
-        <div className={styles.oppBottom}>
-          <span className={styles.oppAmount}>
-            {opp.amount > 0 ? formatAmount(opp.amount, opp.currency) : ''}
-          </span>
-          <span className={styles.oppDate}>
-            {formatCloseDate(opp.close_date)}
-          </span>
+        <ProfileAvatar userId={opp.assigned_to} size="xs" showName />
+
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '1px' }}>
+          {opp.amount > 0 && (
+            <span className={styles.oppAmount}>
+              {formatAmount(opp.amount, opp.currency)}
+            </span>
+          )}
+          {opp.close_date && (
+            <span className={styles.oppDate}>
+              {formatCloseDate(opp.close_date)}
+            </span>
+          )}
         </div>
-      )}
+      </div>
     </div>
   )
 }

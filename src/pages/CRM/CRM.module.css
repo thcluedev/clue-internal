@@ -219,6 +219,15 @@
   padding-left: 22px;
 }
 
+.oppFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  padding-left: 22px;
+  min-height: 20px;
+}
+
 .oppAmount {
   font-family: var(--font-mono);
   font-size: 12px;
