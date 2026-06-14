@@ -51,21 +51,21 @@ export default function QuoteEditor() {
   const [saving, setSaving]     = useState(false)
   const [downloading, setDownloading] = useState(false)
 
-  // Initialize form from existing quote
+  // Initialize form from existing quote — skip entirely when creating new
   useEffect(() => {
-    if (isNew || initialized) return
-    if (quote) {
-      setItems(Array.isArray(quote.items) && quote.items.length > 0 ? quote.items : [{ ...EMPTY_ITEM }])
-      setFormData({
-        company_id:     quote.company_id || null,
-        opportunity_id: quote.opportunity_id || null,
-        status:         quote.status || 'borrador',
-        currency:       quote.currency || 'ARS',
-        valid_days:     quote.valid_days || 15,
-        notes:          quote.notes || '',
-      })
-      setInitialized(true)
-    }
+    if (isNew) return
+    if (initialized) return
+    if (!quote) return
+    setItems(Array.isArray(quote.items) && quote.items.length > 0 ? quote.items : [{ ...EMPTY_ITEM }])
+    setFormData({
+      company_id:     quote.company_id     || null,
+      opportunity_id: quote.opportunity_id || null,
+      status:         quote.status         || 'borrador',
+      currency:       quote.currency       || 'ARS',
+      valid_days:     quote.valid_days     || 15,
+      notes:          quote.notes          || '',
+    })
+    setInitialized(true)
   }, [quote, isNew, initialized])
 
   // Company and opportunity selects
@@ -160,8 +160,8 @@ export default function QuoteEditor() {
     )
   }
 
-  // Not found
-  if (!isNew && !quotesLoading && !quote) {
+  // Not found — only when editing a real id that doesn't exist in the list
+  if (isNew === false && !quotesLoading && !quote) {
     return (
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '1rem' }}>
         <p style={{ fontFamily: 'var(--font-mono)', color: 'var(--stone)', fontSize: '12px' }}>Cotización no encontrada</p>

@@ -9,7 +9,7 @@ export function useQuotes() {
     setLoading(true)
     const { data } = await supabase
       .from('quotes')
-      .select('*, companies(id, name, email), opportunities(id, title)')
+      .select('*, companies(id, name), opportunities(id, title)')
       .order('created_at', { ascending: false })
     setQuotes(data || [])
     setLoading(false)
