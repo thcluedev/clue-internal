@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Button, Input, Badge, Select, Textarea } from '../../components/ui'
+import { Button, Input, Badge, Select, Textarea, UserSelect, ProfileAvatar } from '../../components/ui'
 import { useCompanies } from '../../hooks/useCompanies'
 import styles from './CRM.module.css'
 
@@ -285,11 +285,10 @@ export function OpportunityDrawer({ isOpen, onClose, opportunity, onCreate, onUp
                   />
                   <CurrencyToggle />
                 </div>
-                <Input
+                <UserSelect
                   id="opp-create-assigned_to"
-                  placeholder="Responsable"
                   value={form.assigned_to}
-                  onChange={e => setField('assigned_to', e.target.value)}
+                  onChange={val => setField('assigned_to', val)}
                 />
                 <Input
                   id="opp-create-closedate"
@@ -376,11 +375,10 @@ export function OpportunityDrawer({ isOpen, onClose, opportunity, onCreate, onUp
                       />
                       <CurrencyToggle />
                     </div>
-                    <Input
+                    <UserSelect
                       id="opp-edit-assigned_to"
-                      placeholder="Responsable"
                       value={form.assigned_to}
-                      onChange={e => setField('assigned_to', e.target.value)}
+                      onChange={val => setField('assigned_to', val)}
                     />
                   </div>
                 ) : (
@@ -388,14 +386,17 @@ export function OpportunityDrawer({ isOpen, onClose, opportunity, onCreate, onUp
                     {[
                       { label: 'SERVICIO',    value: SERVICE_OPTIONS.find(s => s.value === opportunity.service)?.label },
                       { label: 'MONTO',       value: opportunity.amount ? `${opportunity.currency} ${Number(opportunity.amount).toLocaleString('es-AR')}` : null },
-                      { label: 'RESPONSABLE', value: opportunity.assigned_to },
+                      { label: 'RESPONSABLE', value: opportunity.assigned_to, isProfile: true },
                     ].map(row => (
                       <div key={row.label} style={{
                         display: 'flex', justifyContent: 'space-between', alignItems: 'center',
                         padding: '0.5rem 0', borderBottom: '1px solid rgba(255,255,255,0.04)', gap: '1rem',
                       }}>
                         <span style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: 'var(--stone)', letterSpacing: '0.08em', flexShrink: 0 }}>{row.label}</span>
-                        <span style={{ fontFamily: 'var(--font-sans)', fontSize: '13px', color: row.value ? 'var(--off-white)' : 'var(--stone)', textAlign: 'right' }}>{row.value || '—'}</span>
+                        {row.isProfile
+                          ? <ProfileAvatar userId={row.value} size="sm" showName />
+                          : <span style={{ fontFamily: 'var(--font-sans)', fontSize: '13px', color: row.value ? 'var(--off-white)' : 'var(--stone)', textAlign: 'right' }}>{row.value || '—'}</span>
+                        }
                       </div>
                     ))}
                   </>
