@@ -43,11 +43,6 @@ export default function App() {
             <Layout><Quotes /></Layout>
           </PrivateRoute>
         } />
-        <Route path="/cotizaciones/nueva" element={
-          <PrivateRoute>
-            <Layout><QuoteEditor /></Layout>
-          </PrivateRoute>
-        } />
         <Route path="/cotizaciones/:id" element={
           <PrivateRoute>
             <Layout><QuoteEditor /></Layout>
