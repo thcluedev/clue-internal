@@ -161,6 +161,7 @@ export default function QuoteEditor() {
   }
 
   // Not found — only when editing a real id that doesn't exist in the list
+  console.log('DEBUG:', { id, isNew, quotesLoading, quote, quotesLength: quotes.length })
   if (isNew === false && !quotesLoading && !quote) {
     return (
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '1rem' }}>
