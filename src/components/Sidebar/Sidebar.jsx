@@ -15,12 +15,13 @@ export function Sidebar() {
   const { user, signOut } = useAuth()
   const [crmCount, setCrmCount]             = useState(null)
   const [myActivitiesCount, setMyActivitiesCount] = useState(null)
+  const [estimCount, setEstimCount]         = useState(null)
 
   useEffect(() => {
     supabase
       .from('opportunities')
       .select('id', { count: 'exact' })
-      .not('stage', 'in', '(cerrado,perdido)')
+      .not('stage', 'in', '(ganado,facturado,perdido)')
       .then(({ count }) => { if (count !== null) setCrmCount(count) })
   }, [])
 
@@ -32,6 +33,16 @@ export function Sidebar() {
       .eq('assigned_to', user.id)
       .eq('done', false)
       .then(({ count }) => { if (count !== null) setMyActivitiesCount(count) })
+  }, [user?.id])
+
+  useEffect(() => {
+    if (!user?.id) return
+    supabase
+      .from('opportunities')
+      .select('id', { count: 'exact' })
+      .eq('stage', 'pendiente_presupuesto')
+      .eq('assigned_to', user.id)
+      .then(({ count }) => { if (count !== null) setEstimCount(count) })
   }, [user?.id])
 
   const initials = user?.email
@@ -98,6 +109,19 @@ export function Sidebar() {
           >
             <span style={{ fontSize: '14px' }}>{item.icon}</span>
             <span id={`${item.id}-label`} style={{ flex: 1 }}>{item.label}</span>
+            {item.id === 'nav-cotizaciones' && estimCount !== null && estimCount > 0 && (
+              <span style={{
+                background: 'rgba(139,92,246,0.14)',
+                border: '1px solid rgba(139,92,246,0.30)',
+                borderRadius: '100px',
+                padding: '1px 7px',
+                fontSize: '10px',
+                fontFamily: 'var(--font-mono)',
+                color: '#8b5cf6',
+              }}>
+                {estimCount}
+              </span>
+            )}
             {item.id === 'nav-crm' && (crmCount !== null || (myActivitiesCount !== null && myActivitiesCount > 0)) && (
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '3px' }}>
                 {crmCount !== null && (

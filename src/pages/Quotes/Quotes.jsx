@@ -4,6 +4,7 @@ import { useQuotes } from '../../hooks/useQuotes'
 import { Button, Card, Badge } from '../../components/ui'
 import { pdf } from '@react-pdf/renderer'
 import { QuotePDF } from './QuotePDF'
+import { EstimacionesView } from './EstimacionesView'
 import styles from './Quotes.module.css'
 
 /* ── Constants ─────────────────────────────────────────────── */
@@ -39,8 +40,9 @@ function calcExpiry(createdAt, validDays) {
 export default function Quotes() {
   const { quotes, loading } = useQuotes()
   const navigate = useNavigate()
+  const [activeTab, setActiveTab]       = useState('cotizaciones')
   const [statusFilter, setStatusFilter] = useState('todos')
-  const [downloading, setDownloading] = useState(null)
+  const [downloading, setDownloading]   = useState(null)
 
   const filtered = useMemo(() =>
     statusFilter === 'todos' ? quotes : quotes.filter(q => q.status === statusFilter),
@@ -73,35 +75,53 @@ export default function Quotes() {
         id="quotes-topbar"
         style={{ padding: '10px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', flexShrink: 0, flexWrap: 'wrap' }}
       >
-        <span style={{ fontFamily: 'var(--font-mono)', fontSize: '9px', color: 'var(--stone)', textTransform: 'uppercase', letterSpacing: '0.2em', whiteSpace: 'nowrap' }}>
-          03 — COTIZACIONES
-        </span>
-        <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
-          <div id="quotes-status-filters" className={styles.statusFilters}>
-            {STATUSES.map(st => (
-              <Button
-                key={st}
-                id={`quotes-filter-${st}`}
-                variant="ghost"
-                size="sm"
-                onClick={() => setStatusFilter(statusFilter === st ? 'todos' : st)}
-                style={statusFilter === st
-                  ? { borderColor: 'var(--ember-border)', color: 'var(--ember)', background: 'var(--ember-dim)' }
-                  : {}
-                }
-              >
-                {st === 'todos' ? 'Todas' : st.charAt(0).toUpperCase() + st.slice(1)}
-              </Button>
-            ))}
-          </div>
-          <Button id="quotes-btn-new" variant="primary" size="sm" onClick={() => navigate('/cotizaciones/nueva')}>
-            + Nueva cotización
-          </Button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <span style={{ fontFamily: 'var(--font-mono)', fontSize: '9px', color: 'var(--stone)', textTransform: 'uppercase', letterSpacing: '0.2em', whiteSpace: 'nowrap' }}>
+            03 — COTIZACIONES
+          </span>
+          <Button
+            variant={activeTab === 'cotizaciones' ? 'primary' : 'ghost'}
+            size="sm"
+            onClick={() => setActiveTab('cotizaciones')}
+          >Cotizaciones</Button>
+          <Button
+            variant={activeTab === 'estimaciones' ? 'primary' : 'ghost'}
+            size="sm"
+            onClick={() => setActiveTab('estimaciones')}
+          >Estimaciones</Button>
         </div>
+
+        {activeTab === 'cotizaciones' && (
+          <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
+            <div id="quotes-status-filters" className={styles.statusFilters}>
+              {STATUSES.map(st => (
+                <Button
+                  key={st}
+                  id={`quotes-filter-${st}`}
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setStatusFilter(statusFilter === st ? 'todos' : st)}
+                  style={statusFilter === st
+                    ? { borderColor: 'var(--ember-border)', color: 'var(--ember)', background: 'var(--ember-dim)' }
+                    : {}
+                  }
+                >
+                  {st === 'todos' ? 'Todas' : st.charAt(0).toUpperCase() + st.slice(1)}
+                </Button>
+              ))}
+            </div>
+            <Button id="quotes-btn-new" variant="primary" size="sm" onClick={() => navigate('/cotizaciones/nueva')}>
+              + Nueva cotización
+            </Button>
+          </div>
+        )}
       </Card>
 
+      {/* Estimaciones tab */}
+      {activeTab === 'estimaciones' && <EstimacionesView />}
+
       {/* Table */}
-      <Card id="quotes-table" className={styles.tableWrap}>
+      {activeTab === 'cotizaciones' && <Card id="quotes-table" className={styles.tableWrap}>
         {/* Header */}
         <div id="quotes-table-header" className={styles.tableHeader}>
           {['NRO', 'EMPRESA', 'ESTADO', 'MON.', 'TOTAL', 'VÁLIDA HASTA', 'VINCULADA A', ''].map(col => (
@@ -204,7 +224,7 @@ export default function Quotes() {
             )
           })}
         </div>
-      </Card>
+      </Card>}
     </div>
   )
 }

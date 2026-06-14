@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useProjects } from '../../hooks/useProjects'
 import { useCompanies } from '../../hooks/useCompanies'
 import { Button, Input, Select, Textarea } from '../../components/ui'
@@ -39,7 +39,7 @@ function StatusBadge({ status }) {
 }
 
 /* ── ProjectDrawer ─────────────────────────────────────────── */
-function ProjectDrawer({ isOpen, onClose, project, companies, onCreate, onUpdate, onDelete }) {
+function ProjectDrawer({ isOpen, onClose, project, companies, onCreate, onUpdate, onDelete, initialValues }) {
   const isCreate = !project
   const [form, setForm]           = useState(EMPTY_FORM)
   const [nameError, setNameError] = useState(false)
@@ -52,10 +52,10 @@ function ProjectDrawer({ isOpen, onClose, project, companies, onCreate, onUpdate
       description: project.description || '',
       company_id:  project.company_id  || null,
       status:      project.status      || 'activo',
-    } : EMPTY_FORM)
+    } : (initialValues || EMPTY_FORM))
     setNameError(false)
     setSaving(false)
-  }, [isOpen, project])
+  }, [isOpen, project, initialValues])
 
   useEffect(() => {
     const h = e => { if (e.key === 'Escape') onClose() }
@@ -193,11 +193,23 @@ function ProjectDrawer({ isOpen, onClose, project, companies, onCreate, onUpdate
 /* ── Projects page ─────────────────────────────────────────── */
 export default function Projects() {
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
   const { projects, loading, createProject, updateProject, deleteProject } = useProjects()
   const { companies } = useCompanies()
-  const [filter, setFilter]               = useState('todos')
-  const [drawerOpen, setDrawerOpen]       = useState(false)
-  const [editingProject, setEditingProject] = useState(null)
+  const [filter, setFilter]                   = useState('todos')
+  const [drawerOpen, setDrawerOpen]           = useState(false)
+  const [editingProject, setEditingProject]   = useState(null)
+  const [initialProjectValues, setInitialProjectValues] = useState(null)
+
+  useEffect(() => {
+    const nombre  = searchParams.get('nombre')
+    if (!nombre || !companies.length) return
+    const empresa = searchParams.get('empresa')
+    const company = companies.find(c => c.name === empresa)
+    setInitialProjectValues({ name: nombre, description: '', company_id: company?.id || null, status: 'activo' })
+    setEditingProject(null)
+    setDrawerOpen(true)
+  }, [searchParams, companies])
 
   const filtered = useMemo(() =>
     filter === 'todos' ? projects : projects.filter(p => p.status === filter),
@@ -328,6 +340,7 @@ export default function Projects() {
         onCreate={createProject}
         onUpdate={updateProject}
         onDelete={deleteProject}
+        initialValues={initialProjectValues}
       />
     </div>
   )

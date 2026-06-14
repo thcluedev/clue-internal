@@ -1,24 +1,21 @@
-import { useState, useEffect, useCallback, useMemo } from 'react'
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
+import { useNavigate } from 'react-router-dom'
 import {
   DndContext, DragOverlay,
   useSensor, useSensors, PointerSensor,
   useDraggable, useDroppable,
 } from '@dnd-kit/core'
-import { CSS } from '@dnd-kit/utilities'
-import { useOpportunities } from '../../hooks/useOpportunities'
-import { Button, Card, Badge, ProfileAvatar } from '../../components/ui'
+import { useOpportunities, STAGE_CONFIG, STAGE_ORDER } from '../../hooks/useOpportunities'
+import { useAuth } from '../../hooks/useAuth'
+import { supabase } from '../../lib/supabase'
+import { Button, Card, ProfileAvatar } from '../../components/ui'
 import { OpportunityDrawer } from './OpportunityDrawer'
 import { ActivitiesView } from './ActivitiesView'
 import styles from './CRM.module.css'
 
 /* ── Constants ─────────────────────────────────────────────── */
-const STAGES = [
-  { id: 'prospecto',  label: 'Prospecto' },
-  { id: 'contactado', label: 'Contactado' },
-  { id: 'cotizado',   label: 'Cotizado' },
-  { id: 'cerrado',    label: 'Cerrado' },
-  { id: 'perdido',    label: 'Perdido' },
-]
+const ALL_STAGES     = STAGE_ORDER.map(id => ({ id, ...STAGE_CONFIG[id] }))
+const DEFAULT_VISIBLE = ['calificado','pendiente_presupuesto','cotizado','negociacion','ganado','perdido']
 
 const SERVICES = ['todos', 'odoo', 'sistemas', 'web', 'ecommerce']
 
@@ -43,6 +40,7 @@ function formatCloseDate(dateStr) {
 
 /* ── OppCardContent — pure display ────────────────────────── */
 function OppCardContent({ opp, isOverlay = false, dragListeners, dragAttributes, dragRef, isDragging }) {
+  const navigate     = useNavigate()
   const svc          = SERVICE_STYLE[opp.service]
   const pendingCount = opp.activities?.filter(a => !a.done).length || 0
 
@@ -107,6 +105,34 @@ function OppCardContent({ opp, isOverlay = false, dragListeners, dragAttributes,
           )}
         </div>
       </div>
+
+      {opp.stage === 'ganado' && (
+        <button
+          onClick={e => {
+            e.stopPropagation()
+            navigate(`/proyectos?opp_id=${opp.id}&nombre=${encodeURIComponent(opp.title)}&empresa=${encodeURIComponent(opp.companies?.name || '')}`)
+          }}
+          style={{
+            display: 'block',
+            marginLeft: '22px',
+            marginTop: '4px',
+            background: 'transparent',
+            border: '1px solid rgba(74,154,90,0.35)',
+            borderRadius: '100px',
+            padding: '3px 10px',
+            fontFamily: 'var(--font-mono)',
+            fontSize: '10px',
+            color: '#4a9a5a',
+            cursor: 'pointer',
+            transition: 'all 0.15s',
+            textAlign: 'left',
+          }}
+          onMouseEnter={e => { e.currentTarget.style.background = 'rgba(74,154,90,0.10)'; e.currentTarget.style.borderColor = 'rgba(74,154,90,0.60)' }}
+          onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.borderColor = 'rgba(74,154,90,0.35)' }}
+        >
+          Crear proyecto →
+        </button>
+      )}
 
       {pendingCount > 0 && (
         <span
@@ -184,7 +210,9 @@ function KanbanColumn({ stage, label, opps, onOpen }) {
 
 /* ── CRM page ──────────────────────────────────────────────── */
 export default function CRM() {
-  const { opportunities, loading, createOpportunity, updateOpportunity, deleteOpportunity } = useOpportunities()
+  const { opportunities, loading, createOpportunity, updateOpportunity, deleteOpportunity, changeStage } = useOpportunities()
+  const { user } = useAuth()
+  const popoverRef = useRef(null)
 
   const [activeTab, setActiveTab]         = useState('pipeline')
   const [newActivityOpen, setNewActivityOpen] = useState(false)
@@ -194,6 +222,9 @@ export default function CRM() {
   const [selectedOppId, setSelectedOppId] = useState(null)
   const [pendingMove, setPendingMove]     = useState(null)
   const [activeId, setActiveId]           = useState(null)
+  const [visibleStages, setVisibleStages] = useState(DEFAULT_VISIBLE)
+  const [showPopover, setShowPopover]     = useState(false)
+  const [moveError, setMoveError]         = useState(null)
 
   // Derived selected opp — stays fresh after updates
   const selectedOpp = useMemo(
@@ -205,6 +236,24 @@ export default function CRM() {
     () => activeId ? localOpps.find(o => o.id === activeId) : null,
     [activeId, localOpps]
   )
+
+  // Load kanban columns preference from profile
+  useEffect(() => {
+    if (!user?.id) return
+    supabase.from('profiles').select('kanban_columns').eq('id', user.id).single()
+      .then(({ data }) => {
+        if (Array.isArray(data?.kanban_columns) && data.kanban_columns.length >= 2)
+          setVisibleStages(data.kanban_columns)
+      })
+  }, [user?.id])
+
+  // Popover outside-click
+  useEffect(() => {
+    if (!showPopover) return
+    const handler = (e) => { if (!popoverRef.current?.contains(e.target)) setShowPopover(false) }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [showPopover])
 
   // Sync localOpps from server when no pending move
   useEffect(() => {
@@ -246,18 +295,33 @@ export default function CRM() {
     const opp = localOpps.find(o => o.id === active.id)
     if (!opp) return
 
+    const isBackward = STAGE_ORDER.indexOf(toStage) < STAGE_ORDER.indexOf(fromStage) && toStage !== 'perdido'
+
     // Optimistic update
     setLocalOpps(prev => prev.map(o =>
       o.id === active.id ? { ...o, stage: toStage } : o
     ))
 
-    setPendingMove({ oppId: active.id, fromStage, toStage, title: opp.title })
+    setPendingMove({ oppId: active.id, fromStage, toStage, title: opp.title, isBackward })
   }, [localOpps])
 
   const handleConfirmMove = async () => {
     if (!pendingMove) return
-    await updateOpportunity(pendingMove.oppId, { stage: pendingMove.toStage })
+    const opp = localOpps.find(o => o.id === pendingMove.oppId)
+    const { error } = await changeStage(opp, pendingMove.toStage)
+    if (error) {
+      setLocalOpps(prev => prev.map(o =>
+        o.id === pendingMove.oppId ? { ...o, stage: pendingMove.fromStage } : o
+      ))
+      setMoveError(error)
+      setTimeout(() => setMoveError(null), 5000)
+    }
     setPendingMove(null)
+  }
+
+  const saveKanbanPreference = (columns) => {
+    if (!user?.id) return
+    supabase.from('profiles').update({ kanban_columns: columns }).eq('id', user.id)
   }
 
   const openDrawer = (opp) => {
@@ -270,7 +334,7 @@ export default function CRM() {
     setSelectedOppId(null)
   }
 
-  const stageLabelFor = (id) => STAGES.find(s => s.id === id)?.label || id
+  const stageLabelFor = (id) => STAGE_CONFIG[id]?.label || id
 
   // Filter + group
   const filtered = useMemo(() =>
@@ -284,6 +348,8 @@ export default function CRM() {
     (stage) => filtered.filter(o => o.stage === stage),
     [filtered]
   )
+
+  const visibleCols = ALL_STAGES.filter(s => visibleStages.includes(s.id))
 
   return (
     <div id="crm-page" className={styles.page}>
@@ -313,6 +379,63 @@ export default function CRM() {
 
         {activeTab === 'pipeline' && (
           <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
+            {/* Personalizar vista */}
+            <div style={{ position: 'relative' }}>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowPopover(p => !p)}
+                style={showPopover ? { borderColor: 'rgba(255,255,255,0.25)', color: 'var(--off-white)' } : {}}
+              >
+                ⚙ Vista
+              </Button>
+              {showPopover && (
+                <div
+                  ref={popoverRef}
+                  style={{
+                    position: 'absolute', top: 'calc(100% + 6px)', right: 0, zIndex: 100,
+                    background: 'rgba(20,18,16,0.97)', backdropFilter: 'blur(28px)',
+                    border: '1px solid rgba(255,255,255,0.16)', borderRadius: '12px',
+                    padding: '8px 0', minWidth: '200px',
+                    boxShadow: '0 8px 32px rgba(0,0,0,0.40)',
+                  }}
+                >
+                  <div style={{ padding: '6px 14px 8px', fontFamily: 'var(--font-mono)', fontSize: '9px', color: 'var(--stone)', textTransform: 'uppercase', letterSpacing: '0.12em', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+                    Columnas visibles
+                  </div>
+                  {ALL_STAGES.map(({ id, label, color }) => {
+                    const checked = visibleStages.includes(id)
+                    return (
+                      <label
+                        key={id}
+                        style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '7px 14px', cursor: 'pointer' }}
+                        onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.04)'}
+                        onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={checked}
+                          onChange={() => {
+                            const next = checked
+                              ? visibleStages.filter(s => s !== id)
+                              : [...visibleStages, id]
+                            if (next.length < 2) return
+                            const ordered = STAGE_ORDER.filter(s => next.includes(s))
+                            setVisibleStages(ordered)
+                            saveKanbanPreference(ordered)
+                          }}
+                          style={{ accentColor: color, width: '14px', height: '14px', cursor: 'pointer' }}
+                        />
+                        <span style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: checked ? color : 'var(--stone)', transition: 'color 0.12s' }}>
+                          {label}
+                        </span>
+                      </label>
+                    )
+                  })}
+                </div>
+              )}
+            </div>
+
             <div id="crm-service-filters" className={styles.serviceFilters}>
               {SERVICES.map(s => (
                 <Button
@@ -361,7 +484,7 @@ export default function CRM() {
             onDragEnd={handleDragEnd}
           >
             <div id="crm-board" className={styles.board}>
-              {STAGES.map(({ id, label }) => (
+              {visibleCols.map(({ id, label }) => (
                 <KanbanColumn
                   key={id}
                   stage={id}
@@ -393,12 +516,22 @@ export default function CRM() {
       {activeTab === 'pipeline' && pendingMove && (
         <div id="crm-move-toast" className={styles.toast}>
           <p className={styles.toastText}>
-            ¿Mover <strong>"{pendingMove.title}"</strong> a{' '}
+            ¿{pendingMove.isBackward ? 'Retroceder' : 'Mover'} <strong>"{pendingMove.title}"</strong> a{' '}
             <strong>{stageLabelFor(pendingMove.toStage)}</strong>?
           </p>
           <div className={styles.toastActions}>
             <Button variant="ghost" size="sm" onClick={handleCancelMove}>Cancelar</Button>
             <Button variant="primary" size="sm" onClick={handleConfirmMove}>Confirmar</Button>
+          </div>
+        </div>
+      )}
+
+      {/* Error toast */}
+      {moveError && (
+        <div id="crm-error-toast" className={styles.toast} style={{ background: 'rgba(30,10,10,0.97)', borderColor: 'rgba(248,113,113,0.30)' }}>
+          <p className={styles.toastText} style={{ color: '#fca5a5' }}>{moveError}</p>
+          <div className={styles.toastActions}>
+            <Button variant="ghost" size="sm" onClick={() => setMoveError(null)}>Cerrar</Button>
           </div>
         </div>
       )}
