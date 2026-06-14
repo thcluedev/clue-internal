@@ -49,15 +49,25 @@ function SectionTitle({ children, id }) {
 
 /* ── Activity helpers ───────────────────────────────────────── */
 const ACTIVITY_TYPE_OPTIONS = [
-  { value: 'llamada', label: 'Llamada' },
-  { value: 'reunion', label: 'Reunión' },
-  { value: 'mail',    label: 'Mail' },
-  { value: 'tarea',   label: 'Tarea' },
-  { value: 'otro',    label: 'Otro' },
+  { value: 'llamada',                    label: 'Llamada' },
+  { value: 'reunion',                    label: 'Reunión' },
+  { value: 'mail',                       label: 'Mail' },
+  { value: 'tarea',                      label: 'Tarea' },
+  { value: 'seguimiento_normal',         label: '🔄 Seguimiento normal' },
+  { value: 'seguimiento_interesado',     label: '🟢 Seguimiento interesado' },
+  { value: 'seguimiento_no_interesado',  label: '🔴 Seguimiento no interesado' },
+  { value: 'otro',                       label: 'Otro' },
 ]
 
 const ACTIVITY_TYPE_ICONS = {
-  llamada: '📞', reunion: '👥', mail: '✉️', tarea: '✓', otro: '·',
+  llamada:                   '📞',
+  reunion:                   '👥',
+  mail:                      '✉️',
+  tarea:                     '✓',
+  seguimiento_normal:        '🔄',
+  seguimiento_interesado:    '🟢',
+  seguimiento_no_interesado: '🔴',
+  otro:                      '·',
 }
 
 const EMPTY_ACTIVITY_FORM = { type: 'llamada', title: '', assigned_to: '', due_date: '', notes: '' }
