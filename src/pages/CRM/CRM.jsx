@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
+import { createPortal } from 'react-dom'
 import { useNavigate } from 'react-router-dom'
 import {
   DndContext, DragOverlay,
@@ -212,7 +213,9 @@ function KanbanColumn({ stage, label, opps, onOpen }) {
 export default function CRM() {
   const { opportunities, loading, createOpportunity, updateOpportunity, deleteOpportunity, changeStage } = useOpportunities()
   const { user } = useAuth()
-  const popoverRef = useRef(null)
+  const popoverAnchorRef = useRef(null)
+  const popoverRef      = useRef(null)
+  const [popoverPos, setPopoverPos] = useState(null)
 
   const [activeTab, setActiveTab]         = useState('pipeline')
   const [newActivityOpen, setNewActivityOpen] = useState(false)
@@ -247,13 +250,26 @@ export default function CRM() {
       })
   }, [user?.id])
 
-  // Popover outside-click
+  // Popover outside-click — checks both anchor and portal content
   useEffect(() => {
     if (!showPopover) return
-    const handler = (e) => { if (!popoverRef.current?.contains(e.target)) setShowPopover(false) }
+    const handler = (e) => {
+      if (
+        !popoverRef.current?.contains(e.target) &&
+        !popoverAnchorRef.current?.contains(e.target)
+      ) setShowPopover(false)
+    }
     document.addEventListener('mousedown', handler)
     return () => document.removeEventListener('mousedown', handler)
   }, [showPopover])
+
+  const handleTogglePopover = () => {
+    if (!showPopover && popoverAnchorRef.current) {
+      const rect = popoverAnchorRef.current.getBoundingClientRect()
+      setPopoverPos({ top: rect.bottom + 6, right: window.innerWidth - rect.right })
+    }
+    setShowPopover(p => !p)
+  }
 
   // Sync localOpps from server when no pending move
   useEffect(() => {
@@ -380,61 +396,71 @@ export default function CRM() {
         {activeTab === 'pipeline' && (
           <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
             {/* Personalizar vista */}
-            <div style={{ position: 'relative' }}>
+            <div ref={popoverAnchorRef}>
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => setShowPopover(p => !p)}
+                onClick={handleTogglePopover}
                 style={showPopover ? { borderColor: 'rgba(255,255,255,0.25)', color: 'var(--off-white)' } : {}}
               >
                 ⚙ Vista
               </Button>
-              {showPopover && (
-                <div
-                  ref={popoverRef}
-                  style={{
-                    position: 'absolute', top: 'calc(100% + 6px)', right: 0, zIndex: 100,
-                    background: 'rgba(20,18,16,0.97)', backdropFilter: 'blur(28px)',
-                    border: '1px solid rgba(255,255,255,0.16)', borderRadius: '12px',
-                    padding: '8px 0', minWidth: '200px',
-                    boxShadow: '0 8px 32px rgba(0,0,0,0.40)',
-                  }}
-                >
-                  <div style={{ padding: '6px 14px 8px', fontFamily: 'var(--font-mono)', fontSize: '9px', color: 'var(--stone)', textTransform: 'uppercase', letterSpacing: '0.12em', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-                    Columnas visibles
-                  </div>
-                  {ALL_STAGES.map(({ id, label, color }) => {
-                    const checked = visibleStages.includes(id)
-                    return (
-                      <label
-                        key={id}
-                        style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '7px 14px', cursor: 'pointer' }}
-                        onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.04)'}
-                        onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
-                      >
-                        <input
-                          type="checkbox"
-                          checked={checked}
-                          onChange={() => {
-                            const next = checked
-                              ? visibleStages.filter(s => s !== id)
-                              : [...visibleStages, id]
-                            if (next.length < 2) return
-                            const ordered = STAGE_ORDER.filter(s => next.includes(s))
-                            setVisibleStages(ordered)
-                            saveKanbanPreference(ordered)
-                          }}
-                          style={{ accentColor: color, width: '14px', height: '14px', cursor: 'pointer' }}
-                        />
-                        <span style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: checked ? color : 'var(--stone)', transition: 'color 0.12s' }}>
-                          {label}
-                        </span>
-                      </label>
-                    )
-                  })}
-                </div>
-              )}
             </div>
+
+            {/* Popover via portal — escapa el stacking context de backdrop-filter */}
+            {showPopover && popoverPos && createPortal(
+              <div
+                ref={popoverRef}
+                style={{
+                  position: 'fixed',
+                  top: popoverPos.top,
+                  right: popoverPos.right,
+                  zIndex: 9999,
+                  background: 'rgba(20,18,16,0.97)',
+                  backdropFilter: 'blur(28px)',
+                  WebkitBackdropFilter: 'blur(28px)',
+                  border: '1px solid rgba(255,255,255,0.16)',
+                  borderRadius: '12px',
+                  padding: '8px 0',
+                  minWidth: '200px',
+                  boxShadow: '0 8px 32px rgba(0,0,0,0.40)',
+                }}
+              >
+                <div style={{ padding: '6px 14px 8px', fontFamily: 'var(--font-mono)', fontSize: '9px', color: 'var(--stone)', textTransform: 'uppercase', letterSpacing: '0.12em', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+                  Columnas visibles
+                </div>
+                {ALL_STAGES.map(({ id, label, color }) => {
+                  const checked = visibleStages.includes(id)
+                  return (
+                    <label
+                      key={id}
+                      style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '7px 14px', cursor: 'pointer' }}
+                      onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.04)'}
+                      onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={checked}
+                        onChange={() => {
+                          const next = checked
+                            ? visibleStages.filter(s => s !== id)
+                            : [...visibleStages, id]
+                          if (next.length < 2) return
+                          const ordered = STAGE_ORDER.filter(s => next.includes(s))
+                          setVisibleStages(ordered)
+                          saveKanbanPreference(ordered)
+                        }}
+                        style={{ accentColor: color, width: '14px', height: '14px', cursor: 'pointer' }}
+                      />
+                      <span style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: checked ? color : 'var(--stone)', transition: 'color 0.12s' }}>
+                        {label}
+                      </span>
+                    </label>
+                  )
+                })}
+              </div>,
+              document.body
+            )}
 
             <div id="crm-service-filters" className={styles.serviceFilters}>
               {SERVICES.map(s => (
